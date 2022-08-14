@@ -1,0 +1,206 @@
+#include "imgui.h"
+#include "imgui_impl_glfw.h"
+#include "imgui_impl_opengl3.h"
+#include "glad/glad.h"
+#include <GLFW/glfw3.h>
+#include "stb_image.h"
+
+#include "Events/KeyboardEvent.h"
+#include "Timer.h"
+#include "Scene.h"
+#include "Light.h"
+#include "Shader.h"
+#include "Camera.h"
+#include "Texture.h"
+#include "MeshRenderer.h"
+#include "Mesh.h"
+#include "Actor.h"
+
+// Vertices coordinates
+Vertex vertices[] =
+{ //               COORDINATES           /            COLORS          /           TexCoord         /       NORMALS         //
+	Vertex{glm::vec3(-1.0f, 0.0f,  1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 0.0f)},
+	Vertex{glm::vec3(-1.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(0.0f, 1.0f)},
+	Vertex{glm::vec3( 1.0f, 0.0f, -1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 1.0f)},
+	Vertex{glm::vec3( 1.0f, 0.0f,  1.0f), glm::vec3(0.0f, 1.0f, 0.0f), glm::vec3(1.0f, 1.0f, 1.0f), glm::vec2(1.0f, 0.0f)}
+};
+
+// Indices for vertices order
+GLuint indices[] =
+{
+	0, 1, 2,
+	0, 2, 3
+};
+
+Vertex lightVertices[] =
+{ //     COORDINATES     //
+	Vertex{glm::vec3(-0.1f, -0.1f,  0.1f)},
+	Vertex{glm::vec3(-0.1f, -0.1f, -0.1f)},
+	Vertex{glm::vec3(0.1f, -0.1f, -0.1f)},
+	Vertex{glm::vec3(0.1f, -0.1f,  0.1f)},
+	Vertex{glm::vec3(-0.1f,  0.1f,  0.1f)},
+	Vertex{glm::vec3(-0.1f,  0.1f, -0.1f)},
+	Vertex{glm::vec3(0.1f,  0.1f, -0.1f)},
+	Vertex{glm::vec3(0.1f,  0.1f,  0.1f)}
+};
+
+GLuint lightIndices[] =
+{
+	0, 1, 2,
+	0, 2, 3,
+	0, 4, 7,
+	0, 7, 3,
+	3, 7, 6,
+	3, 6, 2,
+	2, 6, 5,
+	2, 5, 1,
+	1, 5, 4,
+	1, 4, 0,
+	4, 5, 6,
+	4, 6, 7
+};
+
+static void glfw_error_callback(int error, const char* description)
+{
+    LOG_ERROR("Glfw Error %d: %s\n", error, description);
+}
+
+int main()
+{
+	Logger::Initialize();
+
+    glfwSetErrorCallback(glfw_error_callback);
+    if (!glfwInit())
+		return 1;
+
+	KeyPressedEvent e(1, false);
+	LOG_TRACE(e.ToString());
+
+    const char* glsl_version = "#version 130";
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MAJOR, 3);
+	glfwWindowHint(GLFW_CONTEXT_VERSION_MINOR, 3);
+	glfwWindowHint(GLFW_SAMPLES, 8);
+	glfwWindowHint(GLFW_OPENGL_PROFILE, GLFW_OPENGL_CORE_PROFILE);
+
+	GLFWwindow* window = glfwCreateWindow(1200, 800, "GLRenderer", NULL, NULL);
+	if (window == NULL)
+	{
+		LOG_ERROR("Failed to create GLFW window");
+		glfwTerminate();
+		return -1;
+	}
+	glfwMakeContextCurrent(window);
+
+	// Setup Glad
+	gladLoadGL();
+
+    // Setup Dear ImGui context
+    IMGUI_CHECKVERSION();
+    ImGui::CreateContext();
+    ImGuiIO& io = ImGui::GetIO(); (void)io;
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableKeyboard;     // Enable Keyboard Controls
+    //io.ConfigFlags |= ImGuiConfigFlags_NavEnableGamepad;      // Enable Gamepad Controls
+
+    ImGui::StyleColorsDark();
+    ImGui_ImplGlfw_InitForOpenGL(window, true);
+    ImGui_ImplOpenGL3_Init(glsl_version);
+
+    io.Fonts->AddFontFromFileTTF("./resources/Ubuntu-Regular.ttf", 18.0f);
+    io.Fonts->AddFontFromFileTTF("./resources/Ubuntu-Bold.ttf", 18.0f);
+
+	Scene scene { };
+	scene.GetCamera()->SetPosition({0.0f, 1.0f, -4.0f});
+
+	Texture textures[]
+	{
+		Texture { "./resources/textures/planks.png", "diffuse", 0 },
+		Texture { "./resources/textures/planksSpec.png", "specular", 1 }
+	};
+
+	Shader shader("./source/shaders/default.vert", "./source/shaders/default.frag");
+	Light light { &shader };
+	light.SetPosition({ 0.0f, 0.5f, 0.0f });
+
+	vector <Vertex> verts { vertices, vertices + sizeof(vertices) / sizeof(Vertex) };
+	vector <GLuint> ind { indices, indices + sizeof(indices) / sizeof(GLuint) };
+	vector <Texture> tex { textures, textures + sizeof(textures) / sizeof(Texture) };
+	Mesh floorMesh { verts, ind, tex };
+	MeshRenderer floorRenderer { &shader, &floorMesh };
+	scene.AddActor(&floorRenderer);
+
+	glEnable(GL_DEPTH_TEST);
+	glEnable(GL_MULTISAMPLE);
+	glEnable(GL_CULL_FACE);
+	glCullFace(GL_FRONT);
+	glFrontFace(GL_CCW);
+
+	int fps;
+	int frames = 0;
+	int totalFrames = 0;
+	float lastRenderTime = 0.0f;
+	double lastTime = glfwGetTime();
+	double startTime = lastTime;
+    ImVec4 clear_color = ImVec4(0.22f, 0.25f, 0.30f, 1.00f);
+	while (!glfwWindowShouldClose(window))
+	{
+		Timer timer;
+
+		glfwPollEvents();
+
+        int display_w, display_h;
+        glfwGetFramebufferSize(window, &display_w, &display_h);
+        glViewport(0, 0, display_w, display_h);
+        glClearColor(clear_color.x, clear_color.y, clear_color.z, clear_color.w);
+		glClear(GL_COLOR_BUFFER_BIT | GL_DEPTH_BUFFER_BIT);
+
+        ImGui_ImplOpenGL3_NewFrame();
+        ImGui_ImplGlfw_NewFrame();
+        ImGui::NewFrame();
+
+		scene.Render(display_w, display_h);
+
+		if (totalFrames % 2 == 0)
+		{
+			// double th = totalFrames * 3.14159/360;
+			// floorRenderer.SetPosition( { sin(th), 0.0f, 0.0f } );
+			// floorRenderer.SetRotation( { 0.0f, th, 0.0f } );
+		}
+
+		static ImGuiWindowFlags mainWindowFlags { ImGuiWindowFlags_NoDecoration | ImGuiWindowFlags_NoMove | ImGuiWindowFlags_NoSavedSettings | ImGuiWindowFlags_NoBackground };
+		const ImGuiViewport* viewport { ImGui::GetMainViewport() };
+		ImGui::SetNextWindowPos(viewport->Pos);
+		ImGui::SetNextWindowSize(viewport->Size);
+
+		ImGui::Begin("Main Window", nullptr, mainWindowFlags);
+
+		ImGui::Text("%.3fms", lastRenderTime);
+		ImGui::Text("%d fps\n", fps);
+
+		ImGui::End();
+        ImGui::Render();
+        ImGui_ImplOpenGL3_RenderDrawData(ImGui::GetDrawData());
+
+		glfwSwapBuffers(window);
+
+		lastRenderTime = timer.ElapsedMillis();
+		lastTime = glfwGetTime();
+		frames++;
+		totalFrames++;
+		if (lastTime - startTime > 1.0)
+		{
+			fps = (int) (frames / (lastTime - startTime));
+			startTime = lastTime;
+			frames = 0;
+		}
+	}
+
+	shader.Delete();
+
+    ImGui_ImplOpenGL3_Shutdown();
+    ImGui_ImplGlfw_Shutdown();
+    ImGui::DestroyContext();
+
+	glfwDestroyWindow(window);
+	glfwTerminate();
+	return 0;
+}

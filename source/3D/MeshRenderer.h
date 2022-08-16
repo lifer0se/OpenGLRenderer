@@ -22,8 +22,9 @@ namespace OpenGLRenderer
 		~MeshRenderer() { LOG_TRACE("Deconstructed::MeshRenderer::{0}", m_Name); };
 		MeshRenderer(std::shared_ptr<Shader> shader, Mesh mesh, const char* name);
 
-		void Draw(Camera* camera);
+		void Draw(Camera& camera);
 		Mesh* GetMesh() { return &m_Mesh; };
+		std::shared_ptr<Shader> GetShader() { return m_Shader; };
 		void SetMesh(Mesh mesh) { m_Mesh = mesh; };
 		void Translate(vec3 offset);
 		void SetPosition(vec3 position);

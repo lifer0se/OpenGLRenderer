@@ -8,8 +8,10 @@ in vec3 Normal;
 in vec3 Color;
 in vec2 TexCoords;
 
+uniform vec3 lightColor;
+
 void main()
 {
 	// outputs final color
-	FragColor = vec4(Color, 1.0f);
+	FragColor = vec4(lightColor, 1.0f);
 }

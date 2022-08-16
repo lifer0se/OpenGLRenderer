@@ -6,6 +6,8 @@ namespace OpenGLRenderer
 	ImGuiLayer::ImGuiLayer() {}
 	ImGuiLayer::~ImGuiLayer() {}
 
+    void ImGuiLayer::OnUpdate(float deltaTime) {}
+
 	void ImGuiLayer::OnAttach()
 	{
 		IMGUI_CHECKVERSION();

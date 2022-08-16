@@ -16,7 +16,7 @@ class WindowResizeEvent : public Event
 
 	static EventType GetStaticType() { return EventType::WindowResizeEvent; };
 	virtual EventType GetEventType() const override { return GetStaticType(); };
-	virtual const char* GetName() const override { return "WindowResize"; };
+	virtual const char* GetName() const override { return "WindowResizedEvent"; };
 	virtual int GetCategoryFlags() const override { return EventCategoryApplication; };
 
  private:
@@ -30,7 +30,7 @@ class WindowCloseEvent : public Event
 
 	static EventType GetStaticType() { return EventType::WindowCloseEvent; };
 	virtual EventType GetEventType() const override { return GetStaticType(); };
-	virtual const char* GetName() const override { return "WindowClose"; };
+	virtual const char* GetName() const override { return "WindowClosedEvent"; };
 	virtual int GetCategoryFlags() const override { return EventCategoryApplication; };
 };
 
@@ -41,6 +41,6 @@ class UpdateEvent : public Event
 
 	static EventType GetStaticType() { return EventType::UpdateEvent; };
 	virtual EventType GetEventType() const override { return GetStaticType(); };
-	virtual const char* GetName() const override { return "Update"; };
+	virtual const char* GetName() const override { return "UpdatedEvent"; };
 	virtual int GetCategoryFlags() const override { return EventCategoryApplication; };
 };

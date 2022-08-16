@@ -6,7 +6,7 @@ namespace OpenGLRenderer
 	Layer::~Layer() {}
 	void Layer::OnAttach() {}
 	void Layer::OnDetach() {}
-	void Layer::OnUpdate() {}
+	void Layer::OnUpdate(float deltaTime) {}
 	void Layer::OnEvent(Event& event) {}
 	void Layer::ImGuiRender() {}
 }

@@ -8,13 +8,18 @@ namespace OpenGLRenderer
 	class Texture
 	{
 	public:
-		GLuint ID;
 		const char* type;
 		Texture(const char* image, const char* texType, GLuint slot);
+        static unsigned int LoadTexture(char const * path);
+
+        inline GLuint GetID() { return m_ID; };
 
 		void Bind();
 		void Unbind();
 		void Delete();
+
+    private:
+        GLuint m_ID;
 	};
 }
 

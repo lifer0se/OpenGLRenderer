@@ -43,15 +43,17 @@ struct SpotLight {
 };
 
 #define NR_POINT_LIGHTS 4
+#define NR_SPOT_LIGHTS 4
 
 in vec3 FragPos;
 in vec3 Normal;
+in vec3 Color;
 in vec2 TexCoords;
 
-uniform vec3 viewPos;
+uniform vec3 camPos;
 uniform DirLight dirLight;
 uniform PointLight pointLights[NR_POINT_LIGHTS];
-uniform SpotLight spotLight;
+uniform SpotLight spotLights[NR_POINT_LIGHTS];
 uniform Material material;
 
 // function prototypes
@@ -63,7 +65,7 @@ void main()
 {
     // properties
     vec3 norm = normalize(Normal);
-    vec3 viewDir = normalize(viewPos - FragPos);
+    vec3 viewDir = normalize(camPos - FragPos);
 
     // == =====================================================
     // Our lighting is set up in 3 phases: directional, point lights and an optional flashlight
@@ -77,7 +79,8 @@ void main()
     for(int i = 0; i < NR_POINT_LIGHTS; i++)
         result += CalcPointLight(pointLights[i], norm, FragPos, viewDir);
     // phase 3: spot light
-    result += CalcSpotLight(spotLight, norm, FragPos, viewDir);
+    for(int i = 0; i < NR_SPOT_LIGHTS; i++)
+        result += CalcSpotLight(spotLights[i], norm, FragPos, viewDir);
 
     FragColor = vec4(result, 1.0);
 }

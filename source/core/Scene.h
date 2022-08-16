@@ -16,10 +16,8 @@ namespace OpenGLRenderer
 		Scene();
 		~Scene() { LOG_TRACE("Deconstructed::Scene"); };
 
-		Camera* GetCamera();
-		void SetCamera(Camera camera);
-
-		void SetLight(Light light);
+		inline Camera& GetCamera() { return *m_Camera; };
+		inline void SetCamera(Camera camera) { m_Camera = std::make_unique<Camera>(camera); };
 
 		Actor& GetActor(const char* name);
         void AddActor(std::shared_ptr<Actor> actor);
@@ -28,10 +26,15 @@ namespace OpenGLRenderer
 		void Render();
 
 	private:
-		Camera m_Camera;
-        Light m_Light;
+        std::unique_ptr<Camera> m_Camera;
 		map<const char*, std::shared_ptr<Actor>> m_Actors;
 		map<const char*, std::shared_ptr<MeshRenderer>> m_MeshRenderers;
+        vector<std::shared_ptr<Light>> m_Lights;
+        vector<std::shared_ptr<Shader>> m_UniqueShaders;
+
+
+        void AddMeshRenderer(std::shared_ptr<MeshRenderer> meshRenderer);
+        void AddLight(std::shared_ptr<Light> light);
 	};
 }
 

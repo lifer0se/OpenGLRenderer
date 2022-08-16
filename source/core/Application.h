@@ -1,7 +1,6 @@
 #ifndef APPLICATION_CLASS_H
 #define APPLICATION_CLASS_H
 
-#include "Base.h"
 #include "ImGuiLayer.h"
 #include "Window.h"
 #include "Events/ApplicationEvent.h"
@@ -40,6 +39,7 @@ namespace OpenGLRenderer
 		ImGuiLayer* m_ImGuiLayer;
 		LayerStack m_LayerStack;
 		bool m_Running = true;
+        float m_LastFrameTime = 0.0f;
 	};
 }
 

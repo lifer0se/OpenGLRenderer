@@ -21,7 +21,7 @@ namespace OpenGLRenderer
 
 		if (!s_GLFWInitialized)
 		{
-			// glfwSetErrorCallback(GLFWErrorCallback);
+            glfwWindowHint(GLFW_SAMPLES, 8);
 			int c = glfwInit();
 			if (!c)
 				return;

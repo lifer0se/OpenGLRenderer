@@ -42,6 +42,26 @@ namespace OpenGLRenderer
 		vec3 m_Rotation { 0.0f, 0.0f, 0.0f };
 		vec3 m_Scale { 1.0f, 1.0f, 1.0f };
 	};
+
+    class ActorDispatcher
+    {
+     public:
+        ActorDispatcher(std::shared_ptr<Actor> actor) : m_Actor(actor) {};
+
+        template<typename T, typename F>
+        bool Dispatch(const F& func)
+        {
+            auto t = std::dynamic_pointer_cast<T>(m_Actor);
+            if (!t)
+                return false;
+
+            func(t);
+            return true;
+        }
+
+     private:
+        std::shared_ptr<Actor> m_Actor;
+    };
 }
 
 #endif

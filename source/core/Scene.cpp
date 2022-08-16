@@ -9,26 +9,15 @@ namespace OpenGLRenderer
 {
 	Scene::Scene()
 	{
-		m_Camera = Camera(60.0f, 0.01f, 100.0f);
+		m_Camera = std::make_unique<Camera>(60.0f, 0.01f, 100.0f);
         LOG_TRACE("Constructed::Scene");
-	}
-
-	Camera* Scene::GetCamera()
-	{
-		return &m_Camera;
-	}
-
-	void Scene::SetCamera(Camera camera)
-	{
-		m_Camera = camera;
 	}
 
     Actor& Scene::GetActor(const char* name)
     {
         if (!m_Actors.count(name))
-        {
-            LOG_ERROR("GetActor: \"{0}\" not found", name);
-        }
+            LOG_CRITICAL("GetActor: \"{0}\" not found", name);
+
         return *m_Actors[name];
     }
 
@@ -37,21 +26,40 @@ namespace OpenGLRenderer
 		if (m_Actors.count(actor->GetName()))
 			return;
 
-        m_Actors[actor->GetName()] = actor;
+        ActorDispatcher dispatcher(actor);
+        dispatcher.Dispatch<MeshRenderer>(BIND_FN(AddMeshRenderer));
+        dispatcher.Dispatch<Light>(BIND_FN(AddLight));
 
-		std::shared_ptr<MeshRenderer> meshRenderer = std::dynamic_pointer_cast<MeshRenderer>(actor);
-		if (meshRenderer)
-        {
-            m_MeshRenderers[actor->GetName()] = meshRenderer;
-            cout << actor->GetName() << endl;
-        }
+        m_Actors[actor->GetName()] = actor;
 	}
+
+    void Scene::AddMeshRenderer(std::shared_ptr<MeshRenderer> meshRenderer)
+    {
+        m_MeshRenderers[meshRenderer->GetName()] = meshRenderer;
+        auto shader = meshRenderer->GetShader();
+        if (!std::count(m_UniqueShaders.begin(), m_UniqueShaders.end(), meshRenderer->GetShader()))
+            m_UniqueShaders.push_back(shader);
+
+        for (auto light : m_Lights)
+            light->AddShader(shader);
+    }
+
+    void Scene::AddLight(std::shared_ptr<Light> light)
+    {
+        if (m_Lights.size() >= 4)
+        {
+            LOG_ERROR("Scene::AddActor: Maximum number of lights reached.");
+            return;
+        }
+
+        m_Lights.push_back(light);
+        for (auto& s : m_UniqueShaders)
+            light->AddShader(s);
+    }
 
 	void Scene::Render()
 	{
         for (auto& m : m_MeshRenderers)
-        {
-            m.second->Draw(&m_Camera);
-        }
+            m.second->Draw(*m_Camera);
 	}
 }

@@ -16,11 +16,11 @@ namespace OpenGLRenderer
 {
 	struct Vertex
 	{
-		vec3 postion;
-		vec3 normal;
-		vec3 color;
-		vec2 uv;
-	};
+		vec3 Postion;
+		vec3 Normal;
+		vec3 Color;
+		vec2 Uv;
+    };
 
 	class Mesh
 	{
@@ -28,11 +28,9 @@ namespace OpenGLRenderer
 	public:
 		vector<Vertex> Vertices;
 		vector<GLuint> Indices;
-		vector<Texture> Textures;
 
 		Mesh() {};
 		Mesh(vector<Vertex>& vertices, vector<GLuint>& indices);
-		Mesh(vector<Vertex>& vertices, vector<GLuint>& indices, vector<Texture>& textures);
 	};
 }
 

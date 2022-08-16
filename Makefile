@@ -38,9 +38,9 @@ $(TARGET): $(OBJS)
 $(PCH_OUT): $(PCH_SRC)
 	$(CXX) $(CXXFLAGS) -o $@ $<
 
-$(DIR_OUT)/%.o: %.cpp  $(PCH_OUT)
+$(DIR_OUT)/%.o: %.cpp $(PCH_OUT)
 	mkdir -p $(@D)
-	$(CXX) $(CXXFLAGS) -MMD -MP -include $(PCH_SRC) -c -o $@ $<
+	$(CXX) $(CXXFLAGS) -include $(PCH_SRC) -c -o $@ $<
 
 %.o: %.c
 	$(CXX) $(CXXFLAGS) -c -o $@ $<

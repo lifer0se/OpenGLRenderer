@@ -61,9 +61,9 @@ namespace OpenGLRenderer
 	void Camera::OnEvent(Event& event)
 	{
 		EventDispatcher dispatcher(event);
-		dispatcher.Dispatch<WindowResizeEvent>(BIND_EVENT(Camera::OnWindowResized));
-		dispatcher.Dispatch<KeyPressedEvent>(BIND_EVENT(Camera::OnKeyPressed));
-		dispatcher.Dispatch<KeyReleasedEvent>(BIND_EVENT(Camera::OnKeyReleased));
+		dispatcher.Dispatch<WindowResizeEvent>(BIND_FN(Camera::OnWindowResized));
+		dispatcher.Dispatch<KeyPressedEvent>(BIND_FN(Camera::OnKeyPressed));
+		dispatcher.Dispatch<KeyReleasedEvent>(BIND_FN(Camera::OnKeyReleased));
 	}
 
     bool Camera::OnWindowResized(WindowResizeEvent& event)
@@ -78,7 +78,7 @@ namespace OpenGLRenderer
     {
         int keyCode = event.GetKeyCode();
 		if (keyCode == GLFW_KEY_LEFT_SHIFT)
-			m_Speed = 0.2f;
+			m_Speed = 10.0f;
 
         return false;
     }
@@ -96,30 +96,28 @@ namespace OpenGLRenderer
         }
 
         if (keyCode == GLFW_KEY_LEFT_SHIFT)
-            m_Speed = 0.05f;
+            m_Speed = 5.0f;
 
         return false;
     }
 
-	void Camera::OnUpdate()
+	void Camera::OnUpdate(float deltaTime)
 	{
 		if (!m_Moving)
 			return;
 
 		if (Input::IsKeyPressed(GLFW_KEY_W))
-			SetPosition(GetPosition() + m_Speed * GetForward());
+			SetPosition(GetPosition() + m_Speed * GetForward() * deltaTime);
 		if (Input::IsKeyPressed(GLFW_KEY_A))
-			SetPosition(GetPosition() + m_Speed * -glm::normalize(glm::cross(GetForward(), GetUp())));
+			SetPosition(GetPosition() + m_Speed * -glm::normalize(glm::cross(GetForward(), GetUp())) * deltaTime);
 		if (Input::IsKeyPressed(GLFW_KEY_S))
-			SetPosition(GetPosition() + m_Speed * -GetForward());
+			SetPosition(GetPosition() + m_Speed * -GetForward() * deltaTime);
 		if (Input::IsKeyPressed(GLFW_KEY_D))
-			SetPosition(GetPosition() + m_Speed * glm::normalize(glm::cross(GetForward(), GetUp())));
+			SetPosition(GetPosition() + m_Speed * glm::normalize(glm::cross(GetForward(), GetUp())) * deltaTime);
 		if (Input::IsKeyPressed(GLFW_KEY_SPACE))
-			SetPosition(GetPosition() + m_Speed * GetUp());
+			SetPosition(GetPosition() + m_Speed * GetUp() * deltaTime);
 		if (Input::IsKeyPressed(GLFW_KEY_LEFT_CONTROL))
-			SetPosition(GetPosition() + m_Speed * -GetUp());
-		if (Input::IsKeyPressed(GLFW_KEY_LEFT_SHIFT))
-			m_Speed = 0.2f;
+			SetPosition(GetPosition() + m_Speed * -GetUp() * deltaTime);
 
 		static double prevX = -10000;
 		static double prevY = -10000;
@@ -134,8 +132,8 @@ namespace OpenGLRenderer
 		prevX = mousePosition.x;
 		prevY = mousePosition.y;
 
-		float rotX = m_Sensitivity * (float)(mousePosition.y - (m_Height / 2.0f)) / m_Height;
-		float rotY = m_Sensitivity * (float)(mousePosition.x - (m_Width / 2.0f)) / m_Width;
+		float rotX = m_Sensitivity * (float)(mousePosition.y - (m_Height / 2.0f)) / m_Height * deltaTime;
+		float rotY = m_Sensitivity * (float)(mousePosition.x - (m_Width / 2.0f)) / m_Width * deltaTime;
 		glm::vec3 newForward = glm::rotate(GetForward(), glm::radians(-rotX), glm::normalize(glm::cross(GetForward(), GetUp())));
 		if (std::abs(glm::angle(newForward, GetUp()) - glm::radians(90.0f)) <= glm::radians(85.0f))
 			SetForward(newForward);

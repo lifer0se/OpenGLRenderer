@@ -30,7 +30,7 @@ namespace OpenGLRenderer
         void CalculateProjectionMatrix();
 
         void OnEvent(Event& event);
-        void OnUpdate();
+        void OnUpdate(float deltaTime);
 
 	private:
         bool OnWindowResized(WindowResizeEvent& event);
@@ -49,9 +49,9 @@ namespace OpenGLRenderer
         float m_FOV;
         float m_NearPlane;
         float m_FarPlane;
-		float m_Speed = 0.05f;
-		float m_Sensitivity = 50.0f;
+		float m_Speed = 5.0f;
+		float m_Sensitivity = 1500.0f;
 	};
-} // namespace OpenGLRenderer
+}
 
 #endif

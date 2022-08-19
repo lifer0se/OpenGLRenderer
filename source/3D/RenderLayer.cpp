@@ -1,6 +1,7 @@
 #include "RenderLayer.h"
 #include "Light.h"
 #include "Icosphere.h"
+#include "Planet.h"
 #include "Primatives/Plane.h"
 #include "Primatives/Cube.h"
 
@@ -11,30 +12,14 @@ namespace OpenGLRenderer
 
     void RenderLayer::OnAttach()
     {
-        /* Texture textures[] */
-        /* { */
-            /* Texture { "./resources/textures/planks.png", "diffuse", 0 }, */
-            /* Texture { "./resources/textures/planksSpec.png", "specular", 1 } */
-        /* }; */
-
-        /* materialShader->Activate(); */
-        /* materialShader->SetInt("diffuse0", textures[0].GetID()); */
-        /* materialShader->SetInt("specular0", textures[1].GetID()); */
-
-        /* textures[0].Bind(); */
-        /* textures[1].Bind(); */
-
-        m_Scene = std::make_unique<Scene>();
-        m_Scene->GetCamera().SetPosition({0.0f, 1.0f, -4.0f});
-
-        std::shared_ptr<Shader> materialShader = std::make_shared<Shader>("./source/shaders/default.vert", "./source/shaders/vertexColorLit.frag");
-
-        Icosphere ico { 4, true };
-        std::shared_ptr<MeshRenderer> ico1 = std::make_shared<MeshRenderer>(materialShader, ico.GetMesh(), "Ico1");
-        m_Scene->AddActor(ico1);
+        std::shared_ptr<Shader> planetShader = std::make_shared<Shader>("./source/shaders/default.vert", "./source/shaders/vertexColorLit.frag");
+        std::shared_ptr<Shader> seaShader = std::make_shared<Shader>("./source/shaders/sea.vert", "./source/shaders/sea.frag");
+        std::shared_ptr<Planet> planet = std::make_shared<Planet>(planetShader, seaShader);
+        Application::GetInstance().GetScene().AddActor(planet);
 
         std::shared_ptr<Light> light = std::make_shared<Light>();
-        m_Scene->AddActor(light);
+        light->SetPosition({ -2.0f, 2.0f, 0.0f });
+        Application::GetInstance().GetScene().AddActor(light);
 
         LOG_TRACE("RenderLayer::Attached");
     }
@@ -46,13 +31,11 @@ namespace OpenGLRenderer
 
     void RenderLayer::OnUpdate(float deltaTime)
     {
-        m_Scene->GetCamera().OnUpdate(deltaTime);
-        m_Scene->Render();
     }
 
     void RenderLayer::OnEvent(Event& event)
     {
-        m_Scene->GetCamera().OnEvent(event);
+        Application::GetInstance().GetScene().GetCamera().OnEvent(event);
     }
 
     void RenderLayer::ImGuiRender()

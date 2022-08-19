@@ -1,7 +1,8 @@
 #ifndef CAMERA_CLASS_H
 #define CAMERA_CLASS_H
 
-#include "Application.h"
+#include "Events/ApplicationEvent.h"
+#include "Events/KeyboardEvent.h"
 #include "glad/glad.h"
 #include <GLFW/glfw3.h>
 #include "Actor.h"
@@ -24,13 +25,15 @@ namespace OpenGLRenderer
         void SetHeight(int height) { m_Height = height; };
 
         const mat4& GetCameraMatrix() const { return m_CameraMatrix; };
+        const mat4& GetViewMatrix() const { return m_ViewMatrix; };
+        const mat4& GetProjectionMatrix() const { return m_ProjectionMatrix; };
 		void UpdateMatrix(float FOVdeg, int width, int height, float nearPlane, float farPlane);
 
         void CalculateViewMatrix();
         void CalculateProjectionMatrix();
 
         void OnEvent(Event& event);
-        void OnUpdate(float deltaTime);
+        virtual void OnUpdate(float deltaTime) override;
 
 	private:
         bool OnWindowResized(WindowResizeEvent& event);

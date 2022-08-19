@@ -16,7 +16,7 @@ namespace OpenGLRenderer
 {
 	struct Vertex
 	{
-		vec3 Postion;
+		vec3 Position;
 		vec3 Normal;
 		vec3 Color;
 		vec2 Uv;

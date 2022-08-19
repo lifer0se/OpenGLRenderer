@@ -1,9 +1,6 @@
 #include "Application.h"
-#include "Events/KeyboardEvent.h"
 #include "Input.h"
-#include "Logger.h"
 #include "RenderLayer.h"
-#include "Light.h"
 
 
 namespace OpenGLRenderer
@@ -15,6 +12,9 @@ namespace OpenGLRenderer
         s_Instance = this;
         m_Window = std::unique_ptr<Window>(Window::Create());
         m_Window->SetEventCallback(BIND_FN(Application::OnEvent));
+
+        m_Scene = std::make_unique<Scene>();
+        m_Scene->GetCamera().SetPosition({0.0f, 1.0f, -4.0f});
 
         PushLayer(new RenderLayer());
         m_ImGuiLayer = new ImGuiLayer();
@@ -36,6 +36,8 @@ namespace OpenGLRenderer
             float time = (float)glfwGetTime();
             float deltaTime = time - m_LastFrameTime;
             m_LastFrameTime = time;
+
+            m_Scene->OnUpdate(deltaTime);
 
             for (Layer* layer : m_LayerStack)
                 layer->OnUpdate(deltaTime);

@@ -9,6 +9,6 @@ namespace OpenGLRenderer
 		spdlog::set_pattern("%^[%T]$ %v%$");
 		s_Logger = spdlog::stdout_color_mt("LOGGER");
 		s_Logger->set_level(spdlog::level::trace);
-		LOG_INFO("Logger initialized.");
+		LOG_INFO("Logger::Initialized.");
 	}
 }

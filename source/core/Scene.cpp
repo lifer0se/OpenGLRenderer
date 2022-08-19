@@ -9,7 +9,7 @@ namespace OpenGLRenderer
 {
 	Scene::Scene()
 	{
-		m_Camera = std::make_unique<Camera>(60.0f, 0.01f, 100.0f);
+		m_Camera = std::make_shared<Camera>(60.0f, 0.01f, 100.0f);
         LOG_TRACE("Constructed::Scene");
 	}
 
@@ -55,6 +55,15 @@ namespace OpenGLRenderer
         m_Lights.push_back(light);
         for (auto& s : m_UniqueShaders)
             light->AddShader(s);
+    }
+
+    void Scene::OnUpdate(float deltaTime)
+    {
+        m_Camera->OnUpdate(deltaTime);
+        for (auto& a : m_Actors)
+            a.second->OnUpdate(deltaTime);
+
+        Render();
     }
 
 	void Scene::Render()

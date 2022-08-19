@@ -1,9 +1,8 @@
 #ifndef RENDER_LAYER_CLASS_H
 #define RENDER_LAYER_CLASS_H
 
-#include "Layer.h"
-#include "Scene.h"
 #include "Application.h"
+#include "Layer.h"
 
 namespace OpenGLRenderer
 {
@@ -18,10 +17,6 @@ namespace OpenGLRenderer
 		virtual void OnUpdate(float deltaTime) override;
 		virtual void OnEvent(Event& event) override;
 		virtual void ImGuiRender() override;
-
-
-    private:
-        std::unique_ptr<Scene> m_Scene;
 	};
 }
 

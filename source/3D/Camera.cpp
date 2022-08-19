@@ -2,6 +2,7 @@
 #include "Input.h"
 #include "Events/KeyboardEvent.h"
 #include "Logger.h"
+#include "Application.h"
 
 namespace OpenGLRenderer
 {
@@ -90,7 +91,7 @@ namespace OpenGLRenderer
         {
             m_Moving = !m_Moving;
             if (m_Moving)
-                glfwSetInputMode(Application::GetInstanceNativeWindow(), GLFW_CURSOR, GLFW_CURSOR_HIDDEN);
+                glfwSetInputMode(Application::GetInstanceNativeWindow(), GLFW_CURSOR, GLFW_CURSOR_DISABLED);
             else
                 glfwSetInputMode(Application::GetInstanceNativeWindow(), GLFW_CURSOR, GLFW_CURSOR_NORMAL);
         }
@@ -119,19 +120,8 @@ namespace OpenGLRenderer
 		if (Input::IsKeyPressed(GLFW_KEY_LEFT_CONTROL))
 			SetPosition(GetPosition() + m_Speed * -GetUp() * deltaTime);
 
-		static double prevX = -10000;
-		static double prevY = -10000;
+
         glm::vec2 mousePosition = Input::GetMousePosition();
-
-		if (abs(mousePosition.x - prevX) < 2 && abs(mousePosition.y - prevY) < 2)
-		{
-			prevX = mousePosition.x;
-			prevY = mousePosition.y;
-			return;
-		}
-		prevX = mousePosition.x;
-		prevY = mousePosition.y;
-
 		float rotX = m_Sensitivity * (float)(mousePosition.y - (m_Height / 2.0f)) / m_Height * deltaTime;
 		float rotY = m_Sensitivity * (float)(mousePosition.x - (m_Width / 2.0f)) / m_Width * deltaTime;
 		glm::vec3 newForward = glm::rotate(GetForward(), glm::radians(-rotX), glm::normalize(glm::cross(GetForward(), GetUp())));
@@ -139,7 +129,6 @@ namespace OpenGLRenderer
 			SetForward(newForward);
 
 		SetForward(glm::rotate(GetForward(), glm::radians(-rotY), GetUp()));
-
 		glfwSetCursorPos(Application::GetInstanceNativeWindow(), (m_Width / 2.0f), (m_Height / 2.0f));
 	}
 }

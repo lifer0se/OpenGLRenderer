@@ -54,6 +54,8 @@ namespace OpenGLRenderer
         glCullFace(GL_FRONT);
         glFrontFace(GL_CCW);
 
+        glBlendFunc(GL_SRC_ALPHA, GL_ONE_MINUS_SRC_ALPHA);
+
 		//Set GLFW callbacks
 		glfwSetWindowSizeCallback(m_Window, [](GLFWwindow* window, int width, int height)
 		{

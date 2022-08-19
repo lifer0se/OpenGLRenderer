@@ -1,4 +1,5 @@
 #include "Actor.h"
+#include "Application.h"
 
 namespace OpenGLRenderer
 {
@@ -16,4 +17,12 @@ namespace OpenGLRenderer
 	void Actor::SetUp(vec3 up) { m_Up = up; }
 	void Actor::SetRotation(vec3 rotation) { m_Rotation = rotation; }
 	void Actor::SetScale(vec3 scale) { m_Scale = scale; }
+
+    void Actor::OnUpdate(float deltaTime) {}
+
+    void Actor::AddChild(std::shared_ptr<Actor> child)
+    {
+        m_Children[child->GetName()] = child;
+        Application::GetInstance().GetScene().AddActor(child);
+    }
 }

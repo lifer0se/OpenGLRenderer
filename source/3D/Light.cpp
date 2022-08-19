@@ -59,7 +59,7 @@ namespace OpenGLRenderer
             shader->Activate();
 
             vec3 d = m_DiffuseColor;
-            shader->SetVec4("lightColor", { d.r, d.g, d.b, 1.0f });
+            shader->SetVec3("lightColor", { d.r, d.g, d.b });
         }
     }
 }

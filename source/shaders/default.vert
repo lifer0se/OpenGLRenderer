@@ -10,17 +10,16 @@ out vec3 Normal;
 out vec3 Color;
 out vec2 TexCoords;
 
-uniform mat4 camMatrix;
-uniform mat4 translation;
-uniform mat4 rotation;
-uniform mat4 scale;
+uniform mat4 view;
+uniform mat4 projection;
+uniform mat4 model;
 
 void main()
 {
-	FragPos = vec3(translation * -rotation * scale * vec4(aPos, 1.0f));
-	Normal = aNormal;
+	FragPos = vec3(model * vec4(aPos, 1.0f));
+    Normal = mat3(transpose(inverse(model))) * aNormal;
 	Color = aColor;
 	TexCoords = mat2(0.0, -1.0, 1.0, 0.0) * aTex;
 
-	gl_Position = camMatrix * vec4(FragPos, 1.0);
+    gl_Position = projection * view * vec4(FragPos, 1.0);
 }

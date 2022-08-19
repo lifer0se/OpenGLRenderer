@@ -18,6 +18,7 @@ namespace OpenGLRenderer
 
 	public:
 		Actor() {};
+		~Actor() {};
 
 		vec3 GetPosition();
 		vec3 GetForward();
@@ -32,7 +33,17 @@ namespace OpenGLRenderer
 		void SetRight(vec3 right);
 		void SetUp(vec3 up);
 		void SetRotation(vec3 rotation);
+        void Rotate(vec3 axis, float angle);
 		void SetScale(vec3 scale);
+
+        void AddChild(std::shared_ptr<Actor> child);
+
+        inline int GetChildCount() { return m_Children.size(); };
+
+        virtual void OnUpdate(float deltaTime);
+
+    protected:
+        std::map<const char*, std::shared_ptr<Actor>> m_Children;
 
 	private:
 		vec3 m_Position { 0.0f, 0.0f, 0.0f };

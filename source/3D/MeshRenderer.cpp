@@ -18,6 +18,7 @@ namespace OpenGLRenderer
 		Actor::Translate(offset);
         offset = { offset.x, -offset.y, offset.z };
 		m_TranslationMatrix = translate(mat4 { 1.0f }, GetPosition());
+        SetModelMatrix();
 	}
 
 	void MeshRenderer::SetPosition(vec3 position)
@@ -25,20 +26,38 @@ namespace OpenGLRenderer
 		Actor::SetPosition(position);
         position = { position.x, -position.y, position.z };
 		m_TranslationMatrix = translate(mat4 { 1.0f }, position);
+
+        m_Shader->Activate();
+        m_Shader->SetMat4("translation", m_TranslationMatrix);
 	}
 
 	void MeshRenderer::SetRotation(vec3 rotation)
 	{
 		Actor::SetRotation(rotation);
 		quat q { rotation };
-		m_RotationMatrix = mat4_cast(q);
+
+		m_RotationMatrix = toMat4(q);
+        SetModelMatrix();
 	}
+
+    void MeshRenderer::Rotate(vec3 axis, float angle)
+    {
+        m_RotationMatrix = rotate(angle, axis);
+        SetModelMatrix();
+    }
 
 	void MeshRenderer::SetScale(vec3 scale)
 	{
 		Actor::SetScale(scale);
 		m_ScaleMatrix = glm::scale(mat4 { 1.0f }, scale);
+        SetModelMatrix();
 	}
+
+    void MeshRenderer::SetModelMatrix()
+    {
+        m_Shader->Activate();
+        m_Shader->SetMat4("model", m_TranslationMatrix * m_RotationMatrix * m_ScaleMatrix);
+    }
 
 	void MeshRenderer::InitializeMesh()
 	{
@@ -55,21 +74,26 @@ namespace OpenGLRenderer
 		m_VertexArrayBuffer.Unbind();
 		verticesBuffer.Unbind();
 		indicesBuffer.Unbind();
+
+        m_Shader->Activate();
+        m_Shader->SetMat4("model", m_TranslationMatrix * m_RotationMatrix * m_ScaleMatrix);
 	}
 
 	void MeshRenderer::Draw(Camera& camera)
 	{
+        if (m_Transparent)
+            glEnable(GL_BLEND);
+
 		m_VertexArrayBuffer.Bind();
 
         m_Shader->Activate();
-        /* m_Shader->SetVec3("camPos", camera.GetPosition()); */
-        m_Shader->SetMat4("camMatrix", camera.GetCameraMatrix());
-
-        m_Shader->SetMat4("translation", m_TranslationMatrix);
-        m_Shader->SetMat4("rotation", m_RotationMatrix);
-        m_Shader->SetMat4("scale", m_ScaleMatrix);
+        m_Shader->SetMat4("view", camera.GetViewMatrix());
+        m_Shader->SetMat4("projection", camera.GetProjectionMatrix());
 
 		glDrawElements(GL_TRIANGLES, m_Mesh.Indices.size(), GL_UNSIGNED_INT, nullptr);
 		m_VertexArrayBuffer.Unbind();
+
+        if (m_Transparent)
+            glDisable(GL_BLEND);
 	}
 }

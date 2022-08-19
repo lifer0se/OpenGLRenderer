@@ -2,6 +2,7 @@
 #define ICOSPHERE_CLASS_H
 
 #include "Mesh.h"
+#include "FastNoiseLite.h"
 
 namespace OpenGLRenderer
 {
@@ -9,10 +10,9 @@ namespace OpenGLRenderer
     {
     public:
 
-        Icosphere(int LOD, bool flatShaded);
-        ~Icosphere() {};
-
-        inline Mesh GetMesh() { return m_Mesh; };
+        static void ApplyNoiseLayers(Mesh& mesh);
+        static void RecalculateNormals(Mesh& mesh, bool flatShaded);
+        static Mesh GeneratePrimativeMesh(int LOD, bool flatShaded);
 
     private:
 
@@ -27,13 +27,16 @@ namespace OpenGLRenderer
             {
             }
         };
-        void GetPrimativeIcosphere();
-        int GetMiddlePoint(vector<vec3>& vertexList, map<long, int>& cache, int p1, int p2);
-        vector<vec3> CalculateNormals(vector<GLuint>& indices, bool flatShaded);
+        static void GetPrimativeIcosphere();
+        static void SubdivideIcosphere(map<long, int>& cache);
+        static int GetMiddlePoint(map<long, int>& cache, int p1, int p2);
 
-        vector<vec3> m_VertexList;
-        vector<Face> m_FaceList;
-        Mesh m_Mesh;
+        static void WriteMeshDataToFile(Mesh& mesh);
+
+        static float GetNoise(FastNoiseLite noise, vec3 position, float scale);
+
+        static vector<vec3> m_VertexList;
+        static vector<Face> m_FaceList;
     };
 }
 

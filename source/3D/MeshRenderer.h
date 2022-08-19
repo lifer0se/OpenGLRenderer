@@ -17,7 +17,6 @@ namespace OpenGLRenderer
 	class MeshRenderer : public Actor
 	{
 	public:
-
 		MeshRenderer() {};
 		~MeshRenderer() { LOG_TRACE("Deconstructed::MeshRenderer::{0}", m_Name); };
 		MeshRenderer(std::shared_ptr<Shader> shader, Mesh mesh, const char* name);
@@ -31,6 +30,10 @@ namespace OpenGLRenderer
 		void SetRotation(vec3 rotation);
 		void SetScale(vec3 scale);
 
+        inline void SetTransparent(bool status) { m_Transparent = status; };
+
+        void Rotate(vec3 axis, float angle);
+
 	private:
 		VertexArrayBuffer m_VertexArrayBuffer;
 		Mesh m_Mesh;
@@ -38,8 +41,10 @@ namespace OpenGLRenderer
 		mat4 m_TranslationMatrix { 1.0f };
 		mat4 m_RotationMatrix { 1.0f };
 		mat4 m_ScaleMatrix { 1.0f };
+        bool m_Transparent { false };
 
 		void InitializeMesh();
+        void SetModelMatrix();
 	};
 }
 
